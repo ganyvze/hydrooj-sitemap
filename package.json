@@ -27,11 +27,12 @@
   },
   "peerDependencies": {
     "hydrooj": ">=4.0.0",
-    "@hydrooj/utils": ">=4.0.0"
+    "@hydrooj/utils": ">=1.5.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "hydrooj": ">=4.0.0",
+    "@hydrooj/utils": ">=1.5.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.4.0"
   },

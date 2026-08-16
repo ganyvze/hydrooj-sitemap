@@ -14,22 +14,12 @@
 ## 安装
 
 ```bash
-# 在 HydroOJ 数据目录下（与 config.yaml 同级）执行
-cd /path/to/hydrooj-data
-hydrooj addon add /path/to/hydrooj-plugin-sitemap
-
-# 或者，如果已发布到 npm：
-cd /path/to/hydrooj-data
-npm install hydrooj-plugin-sitemap
-hydrooj addon add hydrooj-plugin-sitemap
-```
-
-安装后重启 HydroOJ 服务（或触发热重载）使插件生效：
-
-```bash
+cd /root/.hydro/addons
+git clone https://github.com/ganyvze/hydrooj-sitemap
+cd hydrooj-sitemap
+npm install
+hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
 pm2 restart hydrooj
-# 或
-systemctl restart hydrooj
 ```
 
 ## 本地开发构建

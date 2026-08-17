@@ -17,7 +17,7 @@
 cd /root/.hydro/addons
 git clone https://github.com/ganyvze/hydrooj-sitemap
 cd hydrooj-sitemap
-npm install
+npm install && npm run build
 hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
 pm2 restart hydrooj
 ```

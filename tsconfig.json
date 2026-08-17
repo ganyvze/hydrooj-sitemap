@@ -1,33 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "lib": ["ES2022"],
-    "outDir": "dist",
-    "rootDir": "src",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "strict": true,
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "allowJs": false,
-    "incremental": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "types": ["node"],
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "hydrooj": ["src/types/hydrooj.d.ts"]
     }
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"]
 }

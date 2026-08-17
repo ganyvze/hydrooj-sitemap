@@ -13,34 +13,58 @@
 
 ## 安装
 
-```bash
-# 在 HydroOJ 数据目录下（与 config.yaml 同级）执行
-cd /path/to/hydrooj-data
-hydrooj addon add /path/to/hydrooj-plugin-sitemap
+**重要说明**：HydroOJ 的 addon 机制期望插件以 **TypeScript 源码** 的形式直接被加载（由 Hydro 启动时自带的 TS 运行时转译层处理），而不是像普通 npm 包那样预先编译成 `.js` 再发布。本插件的 `package.json` 中 `main` 字段直接指向 `src/index.ts`，**不需要、也不应该**执行 `tsc` 编译产出 `dist/` 目录。
 
-# 或者，如果已发布到 npm：
-cd /path/to/hydrooj-data
-npm install hydrooj-plugin-sitemap
-hydrooj addon add hydrooj-plugin-sitemap
+```bash
+# 1. 将插件目录放到任意位置（例如 HydroOJ 官方推荐的 addons 目录）
+cp -r hydrooj-plugin-sitemap /root/.hydro/addons/hydrooj-sitemap
+
+# 2. 进入插件目录，安装依赖 —— 这一步至关重要
+cd /root/.hydro/addons/hydrooj-sitemap
+npm install
 ```
 
-安装后重启 HydroOJ 服务（或触发热重载）使插件生效：
+安装依赖后，**务必确认 `hydrooj` 本身被正确装进了插件自己的 `node_modules`**（这是最容易踩坑的地方）：
 
 ```bash
-pm2 restart hydrooj
+ls node_modules/hydrooj/package.json
+```
+
+如果这个文件不存在，说明 `npm install` 没能正确解析 `hydrooj` 这个 peerDependency（常见于 `hydrooj` 只在系统里通过 `yarn global` 全局安装、而 npm 的模块解析规则并不会自动去全局目录找它的情况）。此时最快的解决办法是从任意一个已经正常工作的 Hydro 插件（例如官方或社区的 judge 插件）的 `node_modules` 目录里，把 `hydrooj`、`@hydrooj`、`cordis`、`schemastery` 这几个目录直接复制过来，确保版本与当前运行的 Hydro 主程序一致：
+
+```bash
+cp -r /path/to/some-working-plugin/node_modules/hydrooj node_modules/
+cp -r /path/to/some-working-plugin/node_modules/@hydrooj node_modules/
+cp -r /path/to/some-working-plugin/node_modules/cordis node_modules/
+cp -r /path/to/some-working-plugin/node_modules/schemastery node_modules/
+```
+
+依赖装好后，注册并启用插件：
+
+```bash
+hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
+hydrooj addon   # 确认列表中出现了该路径
+```
+
+重启 HydroOJ 服务使插件生效（建议完全停止后再启动，而非 restart，避免旧进程状态残留）：
+
+```bash
+pm2 stop hydrooj && pm2 start hydrooj
 # 或
 systemctl restart hydrooj
 ```
 
-## 本地开发构建
+重启后在日志中搜索 `[sitemap] plugin loaded`，出现该行即代表插件已成功加载。
+
+## 本地类型检查（可选，不影响运行）
 
 ```bash
 cd hydrooj-plugin-sitemap
 npm install
-npm run build   # 编译到 dist/
+npm run typecheck
 ```
 
-`hydrooj addon add` 加载的是编译后的 `dist/index.js`（见 `package.json` 的 `main` 字段），发布前请确保执行过 `npm run build`。
+`typecheck` 只做静态类型检查，不产出任何文件，纯粹用于开发时验证代码正确性；线上运行完全不依赖这一步。
 
 ## 配置
 
@@ -84,7 +108,7 @@ Sitemap: https://your-domain/sitemap.xml
 
 ### 为什么需要 `src/types/hydrooj.d.ts`
 
-`hydrooj` 这个 npm 包的 `main` 字段直接指向未编译的 `src/plugin-api.ts` 源文件，而这个包自身的源码在标准严格 `tsc` 检查下会报出大量与本插件无关的类型错误（缺失的第三方类型声明、包内部类型不一致等）。HydroOJ 官方的实际运行方式是用 transpile-only 模式跑源码，从不对自身做严格类型检查，所以这些问题在生产环境完全不影响运行；但只要第三方插件用标准 `tsc` 编译并直接 `import ... from 'hydrooj'`，TS 就会被迫连带解析这条依赖链上所有文件，把 `hydrooj` 自己的类型错误也报到插件的构建结果里，导致 `npm run build` 直接失败、`dist/` 目录生成不出来。
+`hydrooj` 这个 npm 包的 `main` 字段直接指向未编译的 `src/plugin-api.ts` 源文件，而这个包自身的源码在标准严格 `tsc` 检查下会报出大量与本插件无关的类型错误（缺失的第三方类型声明、包内部类型不一致等）。HydroOJ 官方的实际运行方式是由其自带的运行时转译层直接加载源码，从不对自身做严格类型检查，所以这些问题在生产环境完全不影响运行；但如果开发时执行 `npm run typecheck` 并直接 `import ... from 'hydrooj'`，TS 会被迫连带解析这条依赖链上所有文件，把 `hydrooj` 自己的类型错误也报到检查结果里。
 
 `tsconfig.json` 中的：
 ```json

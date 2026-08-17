@@ -10,17 +10,13 @@
     "seo"
   ],
   "license": "AGPL-3.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
   "files": [
-    "dist",
+    "src",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "clean": "rimraf dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "schemastery": "^3.18.0"
@@ -33,7 +29,6 @@
     "@types/node": "^20.11.0",
     "hydrooj": ">=4.0.0",
     "@hydrooj/utils": ">=1.5.0",
-    "rimraf": "^5.0.5",
     "typescript": "^5.4.0"
   },
   "hydrooj": {

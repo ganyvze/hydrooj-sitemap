@@ -14,12 +14,22 @@
 ## 安装
 
 ```bash
-cd /root/.hydro/addons
-git clone https://github.com/ganyvze/hydrooj-sitemap
-cd hydrooj-sitemap
-npm install && npm run build
-hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
+# 在 HydroOJ 数据目录下（与 config.yaml 同级）执行
+cd /path/to/hydrooj-data
+hydrooj addon add /path/to/hydrooj-plugin-sitemap
+
+# 或者，如果已发布到 npm：
+cd /path/to/hydrooj-data
+npm install hydrooj-plugin-sitemap
+hydrooj addon add hydrooj-plugin-sitemap
+```
+
+安装后重启 HydroOJ 服务（或触发热重载）使插件生效：
+
+```bash
 pm2 restart hydrooj
+# 或
+systemctl restart hydrooj
 ```
 
 ## 本地开发构建
@@ -70,6 +80,28 @@ Sitemap: https://your-domain/sitemap.xml
 - `src/generator.ts`：核心数据抓取与权限过滤逻辑，从 `DomainModel` / `ProblemModel` / `ContestModel` / `TrainingModel` / `UserModel` 捞取公开数据并组装成 `SitemapBundle`。
 - `src/cache.ts`：内存缓存管理器，负责 TTL、并发去重（防止缓存击穿）、失败降级（返回旧缓存而非报错）。
 - `src/index.ts`：插件入口，负责路由注册（`/sitemap.xml`、`/sitemap_index.xml`、`/sitemap_:shard.xml`）、启动预热、`ctx.setInterval` 定时重建、以及题目/比赛/域变更事件驱动的缓存失效。
+- `src/types/hydrooj.d.ts`：**本地手写的 `hydrooj` 类型声明**，通过 `tsconfig.json` 的 `paths` 重定向生效。
+
+### 为什么需要 `src/types/hydrooj.d.ts`
+
+`hydrooj` 这个 npm 包的 `main` 字段直接指向未编译的 `src/plugin-api.ts` 源文件，而这个包自身的源码在标准严格 `tsc` 检查下会报出大量与本插件无关的类型错误（缺失的第三方类型声明、包内部类型不一致等）。HydroOJ 官方的实际运行方式是用 transpile-only 模式跑源码，从不对自身做严格类型检查，所以这些问题在生产环境完全不影响运行；但只要第三方插件用标准 `tsc` 编译并直接 `import ... from 'hydrooj'`，TS 就会被迫连带解析这条依赖链上所有文件，把 `hydrooj` 自己的类型错误也报到插件的构建结果里，导致 `npm run build` 直接失败、`dist/` 目录生成不出来。
+
+`tsconfig.json` 中的：
+```json
+"paths": { "hydrooj": ["src/types/hydrooj.d.ts"] }
+```
+让 TS 在类型检查阶段完全不打开 `hydrooj` 的真实源码，改用这份手工维护、已对照 hydrooj@5.0.4 源码核实过的精简类型声明。**这只影响编译期的类型检查，不影响运行时**——运行时 `require('hydrooj')` 仍然由 HydroOJ 自己的模块系统正常解析到真实包。
+
+### 若升级 Hydro 主版本后插件报错或行为异常
+
+请重新核对以下几处 Model 调用是否仍然匹配新版本 API（对应 `src/generator.ts`）：
+- `UserModel.getById(domainId, uid)`
+- `ProblemModel.canViewBy(pdoc, udoc)`
+- `ProblemModel.getMulti(domainId, query, projection)`
+- `ContestModel.getMulti(domainId, query)` / `TrainingModel.getMulti(domainId, query)`
+- `PERM.PERM_VIEW` / `PERM_VIEW_PROBLEM` / `PERM_VIEW_CONTEST` / `PERM_VIEW_TRAINING` 等权限位名称
+
+如果签名变化，同步更新 `src/types/hydrooj.d.ts` 里对应的声明即可，不需要改动 `tsconfig.json` 的整体结构。
 
 ## 已知限制 / 后续可优化方向
 

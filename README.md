@@ -16,42 +16,23 @@
 **重要说明**：HydroOJ 的 addon 机制期望插件以 **TypeScript 源码** 的形式直接被加载（由 Hydro 启动时自带的 TS 运行时转译层处理），而不是像普通 npm 包那样预先编译成 `.js` 再发布。本插件的 `package.json` 中 `main` 字段直接指向 `src/index.ts`，**不需要、也不应该**执行 `tsc` 编译产出 `dist/` 目录。
 
 ```bash
-# 1. 将插件目录放到任意位置（例如 HydroOJ 官方推荐的 addons 目录）
-cp -r hydrooj-plugin-sitemap /root/.hydro/addons/hydrooj-sitemap
-
-# 2. 进入插件目录，安装依赖 —— 这一步至关重要
-cd /root/.hydro/addons/hydrooj-sitemap
+cd /root/.hydro/addons
+git clone https://github.com/ganyvze/hydrooj-sitemap
+cd hydrooj-sitemap
 npm install
-```
-
-安装依赖后，**务必确认 `hydrooj` 本身被正确装进了插件自己的 `node_modules`**（这是最容易踩坑的地方）：
-
-```bash
-ls node_modules/hydrooj/package.json
-```
-
-如果这个文件不存在，说明 `npm install` 没能正确解析 `hydrooj` 这个 peerDependency（常见于 `hydrooj` 只在系统里通过 `yarn global` 全局安装、而 npm 的模块解析规则并不会自动去全局目录找它的情况）。此时最快的解决办法是从任意一个已经正常工作的 Hydro 插件（例如官方或社区的 judge 插件）的 `node_modules` 目录里，把 `hydrooj`、`@hydrooj`、`cordis`、`schemastery` 这几个目录直接复制过来，确保版本与当前运行的 Hydro 主程序一致：
-
-```bash
-cp -r /path/to/some-working-plugin/node_modules/hydrooj node_modules/
-cp -r /path/to/some-working-plugin/node_modules/@hydrooj node_modules/
-cp -r /path/to/some-working-plugin/node_modules/cordis node_modules/
-cp -r /path/to/some-working-plugin/node_modules/schemastery node_modules/
 ```
 
 依赖装好后，注册并启用插件：
 
 ```bash
 hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
-hydrooj addon   # 确认列表中出现了该路径
+hydrooj addon
 ```
 
-重启 HydroOJ 服务使插件生效（建议完全停止后再启动，而非 restart，避免旧进程状态残留）：
+重启 HydroOJ 服务使插件生效：
 
 ```bash
-pm2 stop hydrooj && pm2 start hydrooj
-# 或
-systemctl restart hydrooj
+pm2 restart hydrooj
 ```
 
 重启后在日志中搜索 `[sitemap] plugin loaded`，出现该行即代表插件已成功加载。

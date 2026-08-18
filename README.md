@@ -15,7 +15,7 @@
 
 ```bash
 cd /root/.hydro/addons
-git clone <本插件仓库地址> hydrooj-sitemap
+git clone https://github.com/ganyvze/hydrooj-sitemap
 hydrooj addon add /root/.hydro/addons/hydrooj-sitemap
 pm2 restart hydrooj
 ```
@@ -23,7 +23,7 @@ pm2 restart hydrooj
 一键安装：
 
 ```bash
-cd /root/.hydro/addons && git clone <本插件仓库地址> hydrooj-sitemap && hydrooj addon add /root/.hydro/addons/hydrooj-sitemap && pm2 restart hydrooj
+cd /root/.hydro/addons && git clone https://github.com/ganyvze/hydrooj-sitemap && hydrooj addon add /root/.hydro/addons/hydrooj-sitemap && pm2 restart hydrooj
 ```
 
 ### 使用

@@ -1,40 +1,16 @@
 {
-  "name": "hydrooj-plugin-sitemap",
-  "version": "1.0.0",
-  "description": "HydroOJ Sitemap 插件：自动生成、缓存并托管 sitemap.xml / sitemap_index.xml，用于 SEO 优化。",
-  "keywords": [
-    "hydrooj",
-    "hydro",
-    "plugin",
-    "sitemap",
-    "seo"
-  ],
-  "license": "AGPL-3.0",
-  "main": "src/index.ts",
-  "files": [
-    "src",
-    "README.md"
-  ],
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "schemastery": "^3.18.0"
-  },
-  "peerDependencies": {
-    "hydrooj": ">=4.0.0",
-    "@hydrooj/utils": ">=1.5.0"
-  },
+  "name": "hydrooj-sitemap",
+  "version": "0.1.0",
+  "description": "Automatically generate and maintain a sitemap.xml for HydroOJ",
+  "main": "index.ts",
+  "author": "",
+  "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "hydrooj": ">=4.0.0",
-    "@hydrooj/utils": ">=1.5.0",
-    "typescript": "^5.4.0"
+    "hydrooj": "^5.0.0-beta.5",
+    "mongodb": "^6.18.0"
   },
-  "hydrooj": {
-    "lang": "zh"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "engines": {
-    "node": ">=18"
-  }
+  "keywords": []
 }

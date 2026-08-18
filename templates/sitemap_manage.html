@@ -1,0 +1,133 @@
+{% extends "manage_base.html" %}
+{% import "components/form.html" as form with context %}
+{% block manage_content %}
+<div class="section">
+  <div class="section__header">
+    <h1 class="section__title">{{ _('sitemap_manage') }}</h1>
+  </div>
+  <div class="section__body">
+    <p class="help-text">
+      {{ _('View sitemap.xml') }}: <a href="/sitemap.xml" target="_blank" rel="noopener">/sitemap.xml</a>
+    </p>
+    <p class="help-text">
+      {{ _('Last generated at') }}:
+      {% if config.lastGeneratedAt %}
+        {{ datetimeSpan(config.lastGeneratedAt)|safe }}
+        ({{ _('URLs in last generation') }}: {{ config.lastGeneratedUrlCount }})
+      {% else %}
+        {{ _('Never') }}
+      {% endif %}
+    </p>
+
+    <form method="post">
+      <h2>{{ _('Sitemap Settings') }}</h2>
+
+      {{ form.form_text({
+        columns: 12,
+        label: _('Base URL'),
+        name: 'baseUrl',
+        value: config.baseUrl,
+        placeholder: _('e.g. https://oj.example.com (leave empty to auto-detect from request)'),
+        help_text: _('e.g. https://oj.example.com (leave empty to auto-detect from request)')
+      }) }}
+
+      {{ form.form_text({
+        columns: 12,
+        label: _('Domains to include'),
+        name: 'domains',
+        value: config.domains|join(', '),
+        help_text: _('Comma or space separated domain IDs, leave empty for all domains')
+      }) }}
+
+      <div class="row">
+        <div class="medium-12 columns form__item">
+          <label>{{ _('Content types') }}</label>
+        </div>
+      </div>
+      <div class="row">
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: 'Problems',
+          name: 'includeProblems',
+          value: config.includeProblems
+        }) }}
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: 'Discussions',
+          name: 'includeDiscussions',
+          value: config.includeDiscussions
+        }) }}
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: 'Contests',
+          name: 'includeContests',
+          value: config.includeContests
+        }) }}
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: 'Training',
+          name: 'includeTraining',
+          value: config.includeTraining
+        }) }}
+      </div>
+      <div class="row">
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: 'Homepage',
+          name: 'includeHomepage',
+          value: config.includeHomepage
+        }) }}
+        {{ form.form_checkbox({
+          columns: 3,
+          row: false,
+          label: _('Auto regenerate daily'),
+          name: 'autoRegenerate',
+          value: config.autoRegenerate
+        }) }}
+      </div>
+
+      <div class="row">
+        {{ form.form_select({
+          columns: 4,
+          row: false,
+          label: _('Change frequency'),
+          name: 'changefreq',
+          value: config.changefreq,
+          options: {
+            always: _('always'),
+            hourly: _('hourly'),
+            daily: _('daily'),
+            weekly: _('weekly'),
+            monthly: _('monthly'),
+            yearly: _('yearly'),
+            never: _('never')
+          }
+        }) }}
+        {{ form.form_text({
+          columns: 4,
+          row: false,
+          type: 'number',
+          label: _('Max URLs per file'),
+          name: 'maxUrlsPerFile',
+          value: config.maxUrlsPerFile
+        }) }}
+      </div>
+
+      <button name="operation" value="save" type="submit" class="rounded primary button">
+        {{ _('Save') }}
+      </button>
+    </form>
+
+    <form method="post" style="display:inline-block; margin-top: 10px;">
+      <button name="operation" value="regenerate" type="submit" class="rounded button">
+        {{ _('Regenerate now') }}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
